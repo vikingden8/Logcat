@@ -8,6 +8,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -53,6 +55,7 @@ public class AboutDialog extends Dialog {
         shell.pack();
 
         shell.open();
+
         Display display = parent.getDisplay();
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch())
@@ -134,6 +137,11 @@ public class AboutDialog extends Dialog {
                 shell.close();
             }
         });
+
+        //TODO let about dialog locate in center
+/*        Shell parent = getParent() ;
+        Rectangle bounds = parent.getBounds() ;
+        shell.setLocation(bounds.width/2 - 40 , bounds.height/2-40);*/
 
         shell.pack();
 
