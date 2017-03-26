@@ -178,8 +178,8 @@ public class UiThread {
 
                     @Override
                     public void onAboutMenuSelected() {
-/*                        AboutDialog dlg = new AboutDialog(shell);
-                        dlg.open();*/
+                        AboutDialog dlg = new AboutDialog(shell);
+                        dlg.open();
                     }
                 });
 
