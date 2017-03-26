@@ -28,7 +28,12 @@ public class LogcatMain {
     }
 
     public static void main(String[] args){
+
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtHandler());
+
+        // load prefs and init the default values
+        PrefsDialog.init();
+
         Log.d(Constant.TAG, "Initializing");
 
         UiThread uiThread = new UiThread() ;

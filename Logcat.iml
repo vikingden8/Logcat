@@ -16,5 +16,14 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="ddmlib" level="project" />
+    <orderEntry type="library" name="org-eclipse-jface-3.6.2" level="project" />
+    <orderEntry type="library" name="swtmenubar" level="project" />
+    <orderEntry type="library" name="swt" level="project" />
+    <orderEntry type="library" name="common" level="project" />
+    <orderEntry type="library" name="guava-17.0" level="project" />
+    <orderEntry type="library" name="ddmuilib" level="project" />
+    <orderEntry type="library" name="sdkstats" level="project" />
+    <orderEntry type="library" name="org-eclipse-core-commands-3.6.0" level="project" />
   </component>
 </module>
