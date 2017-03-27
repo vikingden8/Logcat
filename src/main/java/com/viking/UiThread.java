@@ -339,8 +339,10 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
         Composite leftPanel = new Composite(comp, SWT.NONE);
         final Sash sash = new Sash(comp, SWT.VERTICAL);
         sash.setBackground(darkGray);
+        Composite rightPanel = new Composite(comp, SWT.NONE);
 
         createLeftPanel(leftPanel);
+        createRightPanel(rightPanel) ;
 
         FormData data = new FormData();
         data.top = new FormAttachment(0, 0);
@@ -364,6 +366,13 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
             sashData.left = new FormAttachment(0, 380);
         }
         sash.setLayoutData(sashData);
+
+        data = new FormData();
+        data.top = new FormAttachment(0, 0);
+        data.bottom = new FormAttachment(100, 0);
+        data.left = new FormAttachment(sash, 0);
+        data.right = new FormAttachment(100, 0);
+        rightPanel.setLayoutData(data);
 
         final int minPanelWidth = 60;
 
@@ -401,9 +410,6 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
      */
     private void createLeftPanel(final Composite comp) {
         comp.setLayout(new GridLayout(1, false));
-        /*ToolBar toolBar = new ToolBar(comp, SWT.HORIZONTAL | SWT.RIGHT | SWT.WRAP);
-        toolBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        createDevicePanelToolBar(toolBar);*/
 
         Composite c = new Composite(comp, SWT.NONE);
         c.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -413,6 +419,16 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
 
         // add ourselves to the device panel selection listener
         mDevicePanel.addSelectionListener(this);
+    }
+
+    private void createRightPanel(final Composite comp){
+        IPreferenceStore prefStore = DdmUiPreferences.getStore();
+        mLogCatPanel = new LogCatPanel(prefStore);
+        mLogCatPanel.createPanel(comp);
+
+        if (mCurrentDevice != null) {
+            mLogCatPanel.deviceSelected(mCurrentDevice);
+        }
     }
 
     /**
