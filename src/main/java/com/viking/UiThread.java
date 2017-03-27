@@ -310,50 +310,22 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
         final PreferenceStore prefs = PrefsDialog.getStore();
 
         Composite topPanel = new Composite(panelArea, SWT.NONE);
-        final Sash sash = new Sash(panelArea, SWT.HORIZONTAL);
-        sash.setBackground(darkGray);
-        Composite bottomPanel = new Composite(panelArea, SWT.NONE);
+/*        final Sash sash = new Sash(panelArea, SWT.HORIZONTAL);
+        sash.setBackground(darkGray);*/
+//        Composite bottomPanel = new Composite(panelArea, SWT.NONE);
 
         panelArea.setLayout(new FormLayout());
 
         createTopPanel(topPanel, darkGray);
-        createLogCatView(bottomPanel);
+//        createLogCatView(bottomPanel);
 
         // form layout data
         FormData data = new FormData();
         data.top = new FormAttachment(0, 0);
-        data.bottom = new FormAttachment(sash, 0);
+        data.bottom = new FormAttachment(100, 0);
         data.left = new FormAttachment(0, 0);
         data.right = new FormAttachment(100, 0);
         topPanel.setLayoutData(data);
-
-        final FormData sashData = new FormData();
-        if (prefs != null && prefs.contains(Constant.PREFERENCE_LOGSASH)) {
-            sashData.top = new FormAttachment(0, prefs.getInt(Constant.PREFERENCE_LOGSASH));
-        } else {
-            sashData.top = new FormAttachment(50,0); // 50% across
-        }
-        sashData.left = new FormAttachment(0, 0);
-        sashData.right = new FormAttachment(100, 0);
-        sash.setLayoutData(sashData);
-
-        // allow resizes, but cap at minPanelWidth
-        sash.addListener(SWT.Selection, new Listener() {
-            @Override
-            public void handleEvent(Event e) {
-                Rectangle sashRect = sash.getBounds();
-                Rectangle panelRect = panelArea.getClientArea();
-                int bottom = panelRect.height - sashRect.height - 100;
-                e.y = Math.max(Math.min(e.y, bottom), 100);
-                if (e.y != sashRect.y) {
-                    sashData.top = new FormAttachment(0, e.y);
-                    if (prefs != null) {
-                        prefs.setValue(Constant.PREFERENCE_LOGSASH, e.y);
-                    }
-                    panelArea.layout();
-                }
-            }
-        });
 
         mStatusLine.setText("");
 
