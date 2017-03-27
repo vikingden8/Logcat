@@ -1,6 +1,8 @@
 package com.viking;
 
 import com.android.ddmlib.AndroidDebugBridge;
+import com.android.ddmlib.Client;
+import com.android.ddmlib.IDevice;
 import com.android.ddmlib.Log;
 import com.android.ddmuilib.DdmUiPreferences;
 import com.android.ddmuilib.DevicePanel;
@@ -34,13 +36,17 @@ import java.util.ArrayList;
  * Author : Viking Den <vikingden7@gmail.com>
  * Date : 2017/3/26
  */
-public class UiThread {
+public class UiThread implements DevicePanel.IUiSelectionListener {
 
     // our display
     private Display mDisplay;
 
     // the table we show in the left-hand pane
     private DevicePanel mDevicePanel;
+
+    private IDevice mCurrentDevice = null;
+    private Client mCurrentClient = null;
+
     private LogCatPanel mLogCatPanel;
 
     private ImageLoader mDdmUiLibLoader;
@@ -122,11 +128,8 @@ public class UiThread {
             }
         });
 
-//        AndroidDebugBridge.init(true /* debugger support */);
-//        AndroidDebugBridge.createBridge(adbLocation, true /* forceNewBridge */);
-//
-//        // we need to listen to client change to be notified of client status (profiling) change
-//        AndroidDebugBridge.addClientChangeListener(this);
+        AndroidDebugBridge.init(true);
+        AndroidDebugBridge.createBridge();
 
         shell.setText("Android Logcat Monitor");
 
@@ -416,9 +419,9 @@ public class UiThread {
         mLogCatPanel = new LogCatPanel(prefStore);
         mLogCatPanel.createPanel(parent);
 
-/*        if (mCurrentDevice != null) {
+        if (mCurrentDevice != null) {
             mLogCatPanel.deviceSelected(mCurrentDevice);
-        }*/
+        }
     }
 
     /**
@@ -433,10 +436,34 @@ public class UiThread {
         Composite c = new Composite(comp, SWT.NONE);
         c.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        mDevicePanel = new DevicePanel(true /* showPorts */);
+        mDevicePanel = new DevicePanel(true);
         mDevicePanel.createPanel(c);
 
         // add ourselves to the device panel selection listener
-//        mDevicePanel.addSelectionListener(this);
+        mDevicePanel.addSelectionListener(this);
+    }
+
+    /**
+     * Sent when a new {@link IDevice} and {@link Client} are selected.
+     * @param selectedDevice the selected device. If null, no devices are selected.
+     * @param selectedClient The selected client. If null, no clients are selected.
+     *
+     */
+    @Override
+    public void selectionChanged(IDevice selectedDevice, Client selectedClient) {
+        if (mCurrentDevice != selectedDevice) {
+            mCurrentDevice = selectedDevice;
+            mLogCatPanel.deviceSelected(mCurrentDevice);
+        }
+
+        if (mCurrentClient != selectedClient) {
+            AndroidDebugBridge.getBridge().setSelectedClient(selectedClient);
+            mCurrentClient = selectedClient;
+            enableButtons();
+        }
+    }
+
+    private void enableButtons() {
+        //empty implements
     }
 }
