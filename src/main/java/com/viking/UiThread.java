@@ -16,7 +16,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -25,8 +24,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
-
-import java.util.ArrayList;
 
 /**
  * Author : Viking Den <vikingden7@gmail.com>
@@ -44,8 +41,6 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
     private Client mCurrentClient = null;
 
     private LogCatPanel mLogCatPanel;
-
-    private ImageLoader mDdmUiLibLoader;
 
     // status line at the bottom of the app window
     private Label mStatusLine;
@@ -91,9 +86,6 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
 
         mDisplay = Display.getDefault() ;
         final Shell shell = new Shell(mDisplay , SWT.SHELL_TRIM) ;
-
-        // create the image loaders for DDMS and DDMUILIB
-        mDdmUiLibLoader = ImageLoader.getDdmUiLibLoader();
 
         shell.setImage(ImageLoader.getLoader(this.getClass()).loadImage(mDisplay,
                 "ddms-128.png",
@@ -300,20 +292,11 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
 
         mStatusLine.setText("Initializing...");
 
-        /*
-         * Configure the split-panel area.
-         */
-        final PreferenceStore prefs = PrefsDialog.getStore();
-
         Composite topPanel = new Composite(panelArea, SWT.NONE);
-/*        final Sash sash = new Sash(panelArea, SWT.HORIZONTAL);
-        sash.setBackground(darkGray);*/
-//        Composite bottomPanel = new Composite(panelArea, SWT.NONE);
 
         panelArea.setLayout(new FormLayout());
 
         createTopPanel(topPanel, darkGray);
-//        createLogCatView(bottomPanel);
 
         // form layout data
         FormData data = new FormData();
@@ -391,16 +374,6 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
         });
     }
 
-    private void createLogCatView(Composite parent) {
-        IPreferenceStore prefStore = DdmUiPreferences.getStore();
-        mLogCatPanel = new LogCatPanel(prefStore);
-        mLogCatPanel.createPanel(parent);
-
-        if (mCurrentDevice != null) {
-            mLogCatPanel.deviceSelected(mCurrentDevice);
-        }
-    }
-
     /**
      * Create the contents of the left panel: a table of VMs.
      */
@@ -443,11 +416,7 @@ public class UiThread implements DevicePanel.IUiSelectionListener {
         if (mCurrentClient != selectedClient) {
             AndroidDebugBridge.getBridge().setSelectedClient(selectedClient);
             mCurrentClient = selectedClient;
-            enableButtons();
         }
     }
 
-    private void enableButtons() {
-        //empty implements
-    }
 }
