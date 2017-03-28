@@ -1,4 +1,4 @@
-package com.viking.logcat;
+package com.viking.model;
 
 import com.android.ddmlib.logcat.LogCatMessage;
 
@@ -13,10 +13,9 @@ import java.util.concurrent.BlockingQueue;
  */
 public final class LogCatMessageList {
     /** Preference key for size of the FIFO. */
-    public static final String MAX_MESSAGES_PREFKEY =
-            "logcat.messagelist.max.size";
+    public static final String MAX_MESSAGES_PREFKEY = "logcat.messagelist.max.size";
 
-    /** Default value for max # of messages. */
+    /** Default value for max of messages. */
     public static final int MAX_MESSAGES_DEFAULT = 5000;
 
     private int mFifoSize;
@@ -28,8 +27,7 @@ public final class LogCatMessageList {
      */
     public LogCatMessageList(int maxMessages) {
         mFifoSize = maxMessages;
-
-        mQ = new ArrayBlockingQueue<LogCatMessage>(mFifoSize);
+        mQ = new ArrayBlockingQueue<>(mFifoSize);
     }
 
     /**
@@ -38,14 +36,13 @@ public final class LogCatMessageList {
      */
     public synchronized void resize(int n) {
         mFifoSize = n;
-
         if (mFifoSize > mQ.size()) {
             /* if resizing to a bigger fifo, we can copy over all elements from the current mQ */
-            mQ = new ArrayBlockingQueue<LogCatMessage>(mFifoSize, true, mQ);
+            mQ = new ArrayBlockingQueue<>(mFifoSize, true, mQ);
         } else {
             /* for a smaller fifo, copy over the last n entries */
             LogCatMessage[] curMessages = mQ.toArray(new LogCatMessage[mQ.size()]);
-            mQ = new ArrayBlockingQueue<LogCatMessage>(mFifoSize);
+            mQ = new ArrayBlockingQueue<>(mFifoSize);
             for (int i = curMessages.length - mFifoSize; i < curMessages.length; i++) {
                 mQ.offer(curMessages[i]);
             }
@@ -55,7 +52,7 @@ public final class LogCatMessageList {
     /**
      * Append a message to the list. If the list is full, the first
      * message will be popped off of it.
-     * @param m log to be inserted
+     * @param messages log to be inserted
      */
     public synchronized void appendMessages(final List<LogCatMessage> messages) {
         ensureSpace(messages.size());
@@ -69,7 +66,7 @@ public final class LogCatMessageList {
      * @return list of messages that were deleted to create additional space.
      */
     public synchronized List<LogCatMessage> ensureSpace(int messageCount) {
-        List<LogCatMessage> l = new ArrayList<LogCatMessage>(messageCount);
+        List<LogCatMessage> l = new ArrayList<>(messageCount);
 
         while (mQ.remainingCapacity() < messageCount) {
             l.add(mQ.poll());
@@ -95,6 +92,6 @@ public final class LogCatMessageList {
 
     /** Obtain a copy of the message list. */
     public synchronized List<LogCatMessage> getAllMessages() {
-        return new ArrayList<LogCatMessage>(mQ);
+        return new ArrayList<>(mQ);
     }
 }
