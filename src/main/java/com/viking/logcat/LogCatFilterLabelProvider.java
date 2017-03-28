@@ -2,6 +2,7 @@ package com.viking.logcat;
 
 import com.android.ddmlib.logcat.LogCatFilter;
 
+import com.viking.model.LogCatFilterData;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;

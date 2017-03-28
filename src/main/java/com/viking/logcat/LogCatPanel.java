@@ -6,6 +6,9 @@ import com.android.ddmlib.Log.LogLevel;
 import com.android.ddmlib.logcat.LogCatFilter;
 import com.android.ddmlib.logcat.LogCatMessage;
 
+import com.viking.model.LogCatFilterData;
+import com.viking.model.LogCatFilterSettingsSerializer;
+import com.viking.model.LogCatMessageList;
 import com.viking.util.ImageLoader;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -18,15 +21,10 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -192,15 +190,18 @@ public final class LogCatPanel extends SelectionDependentPanel
      */
     public LogCatPanel(IPreferenceStore prefStore) {
         mPrefStore = prefStore;
-        mLogBuffer = new ArrayList<LogCatMessage>(LogCatMessageList.MAX_MESSAGES_DEFAULT);
+        mLogBuffer = new ArrayList<>(LogCatMessageList.MAX_MESSAGES_DEFAULT);
 
         initializeFilters();
 
         setupDefaultPreferences();
+
         initializePreferenceUpdateListeners();
 
         mFont = getFontFromPrefStore();
+
         loadMessageColorPreferences();
+
         mAutoScrollLock = mPrefStore.getBoolean(AUTO_SCROLL_LOCK_PREFKEY);
     }
 
@@ -217,9 +218,12 @@ public final class LogCatPanel extends SelectionDependentPanel
         mAssertColor = getColorFromPrefStore(ASSERT_COLOR_PREFKEY);
     }
 
+    /**
+     * 初始化Filters
+     */
     private void initializeFilters() {
-        mLogCatFilters = new ArrayList<LogCatFilter>();
-        mLogCatFilterData = new ConcurrentHashMap<LogCatFilter, LogCatFilterData>();
+        mLogCatFilters = new ArrayList<>();
+        mLogCatFilterData = new ConcurrentHashMap<>();
 
         /* add default filter matching all messages */
         String tag = "";
@@ -308,6 +312,9 @@ public final class LogCatPanel extends SelectionDependentPanel
         });
     }
 
+    /**
+     * 保存Filter
+     */
     private void saveFilterPreferences() {
         LogCatFilterSettingsSerializer serializer = new LogCatFilterSettingsSerializer();
 
@@ -317,6 +324,10 @@ public final class LogCatPanel extends SelectionDependentPanel
         mPrefStore.setValue(LOGCAT_FILTERS_LIST, e);
     }
 
+    /**
+     * 获取保存的Filter
+     * @return
+     */
     private List<LogCatFilter> getSavedFilters() {
         LogCatFilterSettingsSerializer serializer = new LogCatFilterSettingsSerializer();
         String e = mPrefStore.getString(LOGCAT_FILTERS_LIST);

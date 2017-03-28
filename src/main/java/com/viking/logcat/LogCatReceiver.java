@@ -6,6 +6,7 @@ import com.android.ddmlib.logcat.LogCatListener;
 import com.android.ddmlib.logcat.LogCatMessage;
 import com.android.ddmlib.logcat.LogCatReceiverTask;
 
+import com.viking.model.LogCatMessageList;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import java.util.Collections;
