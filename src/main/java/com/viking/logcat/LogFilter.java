@@ -18,9 +18,6 @@ package com.viking.logcat;
 
 import com.android.ddmlib.Log;
 import com.android.ddmlib.Log.LogLevel;
-import com.android.ddmuilib.annotation.UiThread;
-import com.android.ddmuilib.logcat.*;
-import com.android.ddmuilib.logcat.LogPanel.LogMessage;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -77,12 +74,12 @@ public class LogFilter {
     /** temp log level filtering */
     private int mTempLogLevel = -1;
 
-    private com.android.ddmuilib.logcat.LogColors mColors;
+    private LogColors mColors;
 
     private boolean mTempFilteringStatus = false;
 
-    private final ArrayList<LogMessage> mMessages = new ArrayList<LogMessage>();
-    private final ArrayList<LogMessage> mNewMessages = new ArrayList<LogMessage>();
+    private final ArrayList<LogPanel.LogMessage> mMessages = new ArrayList<LogPanel.LogMessage>();
+    private final ArrayList<LogPanel.LogMessage> mNewMessages = new ArrayList<LogPanel.LogMessage>();
 
     private boolean mSupportsDelete = true;
     private boolean mSupportsEdit = true;
@@ -285,15 +282,8 @@ public class LogFilter {
         mIsCurrentTabItem = selected;
     }
 
-    /**
-     * Adds a new message and optionally removes an old message.
-     * <p/>The new message is filtered through {@link #accept(LogMessage)}.
-     * Calls to {@link #flush()} from a UI thread will display it (and other
-     * pending messages) to the associated {@link Table}.
-     * @param logMessage the MessageData object to filter
-     * @return true if the message was accepted.
-     */
-    public boolean addMessage(LogMessage newMessage, LogMessage oldMessage) {
+
+    public boolean addMessage(LogPanel.LogMessage newMessage, LogPanel.LogMessage oldMessage) {
         synchronized (mMessages) {
             if (oldMessage != null) {
                 int index = mMessages.indexOf(oldMessage);
@@ -339,7 +329,7 @@ public class LogFilter {
      * @param logMessage the Message
      * @return true if the message is accepted by the filter.
      */
-    boolean accept(LogMessage logMessage) {
+    boolean accept(LogPanel.LogMessage logMessage) {
         // do the regular filtering now
         if ((mMode & MODE_PID) == MODE_PID && mPid != logMessage.data.pid) {
             return false;
@@ -397,7 +387,6 @@ public class LogFilter {
      * Takes all the accepted messages and display them.
      * This must be called from a UI thread.
      */
-    @UiThread
     public void flush() {
         // if scroll bar is at the bottom, we will scroll
         ScrollBar bar = mTable.getVerticalBar();
@@ -424,7 +413,7 @@ public class LogFilter {
 
             // add the new items
             for (int i = 0  ; i < totalCount ; i++) {
-                LogMessage msg = mNewMessages.get(i);
+                LogPanel.LogMessage msg = mNewMessages.get(i);
                 addTableItem(msg);
             }
         } catch (SWTException e) {
@@ -473,7 +462,7 @@ public class LogFilter {
         mNewMessages.clear();
     }
 
-    void setColors(com.android.ddmuilib.logcat.LogColors colors) {
+    void setColors(LogColors colors) {
         mColors = colors;
     }
 
@@ -526,12 +515,7 @@ public class LogFilter {
         return mTempFilteringStatus;
     }
 
-
-    /**
-     * Add a TableItem for the index-th item of the buffer
-     * @param filter The index of the table in which to insert the item.
-     */
-    private void addTableItem(LogMessage msg) {
+    private void addTableItem(LogPanel.LogMessage msg) {
         TableItem item = new TableItem(mTable, SWT.NONE);
         item.setText(0, msg.data.time);
         item.setText(1, new String(new char[] { msg.data.logLevel.getPriorityLetter() }));

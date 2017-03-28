@@ -1,24 +1,6 @@
-/*
- * Copyright (C) 2007 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.viking.logcat;
 
-import com.android.ddmuilib.ImageLoader;
-
-import com.android.ddmuilib.logcat.*;
+import com.viking.util.ImageLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -58,16 +40,12 @@ public class EditFilterDialog extends Dialog {
     /**
      * Filter being edited or created
      */
-    private com.android.ddmuilib.logcat.LogFilter mFilter;
+    private LogFilter mFilter;
 
     private String mName;
     private String mTag;
     private String mPid;
 
-    /** Log level as an index of the drop-down combo
-     * @see getLogLevel
-     * @see getComboIndex
-     */
     private int mLogLevel;
 
     private Button mOkButton;
@@ -80,7 +58,7 @@ public class EditFilterDialog extends Dialog {
         super(parent, SWT.DIALOG_TRIM | SWT.BORDER | SWT.APPLICATION_MODAL);
     }
 
-    public EditFilterDialog(Shell shell, com.android.ddmuilib.logcat.LogFilter filter) {
+    public EditFilterDialog(Shell shell, LogFilter filter) {
         this(shell);
         mFilter = filter;
     }
@@ -120,7 +98,7 @@ public class EditFilterDialog extends Dialog {
         if (mOk) {
             // if it was a "Create filter" action we need to create it first.
             if (mFilter == null) {
-                mFilter = new com.android.ddmuilib.logcat.LogFilter(mName);
+                mFilter = new LogFilter(mName);
             }
 
             // setup the filter
@@ -138,7 +116,7 @@ public class EditFilterDialog extends Dialog {
         return mOk;
     }
 
-    public com.android.ddmuilib.logcat.LogFilter getFilter() {
+    public LogFilter getFilter() {
         return mFilter;
     }
 

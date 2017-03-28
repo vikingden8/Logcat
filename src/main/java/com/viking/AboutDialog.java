@@ -1,9 +1,9 @@
 package com.viking;
 
 import com.android.ddmlib.Log;
-import com.android.ddmuilib.ImageLoader;
 
 import com.viking.util.Constant;
+import com.viking.util.ImageLoader;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
