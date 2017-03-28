@@ -1,4 +1,4 @@
-package com.viking.logcat;
+package com.viking.model;
 
 import com.android.ddmlib.logcat.LogCatFilter;
 import com.android.ddmlib.logcat.LogCatMessage;

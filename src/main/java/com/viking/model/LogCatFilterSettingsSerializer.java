@@ -1,4 +1,4 @@
-package com.viking.logcat;
+package com.viking.model;
 
 import com.android.ddmlib.Log.LogLevel;
 import com.android.ddmlib.logcat.LogCatFilter;
@@ -75,7 +75,7 @@ public final class LogCatFilterSettingsSerializer {
      * @return a list of {@link LogCatFilter}
      */
     public List<LogCatFilter> decodeFromPreferenceString(String pref) {
-        List<LogCatFilter> fs = new ArrayList<LogCatFilter>();
+        List<LogCatFilter> fs = new ArrayList<>();
 
         /* first split the string into a list of key, value pairs */
         List<String> kv = getKeyValues(pref);
