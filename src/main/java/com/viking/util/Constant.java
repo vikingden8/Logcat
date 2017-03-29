@@ -71,7 +71,6 @@ public class Constant {
     public static final String IMAGE_ADD_FILTER = "add.png";
     public static final String IMAGE_DELETE_FILTER = "delete.png";
     public static final String IMAGE_EDIT_FILTER = "edit.png";
-    public static final String IMAGE_SAVE_LOG_TO_FILE = "save.png";
     public static final String IMAGE_CLEAR_LOG = "clear.png";
     public static final String IMAGE_DISPLAY_FILTERS = "displayfilters.png";
     public static final String IMAGE_SCROLL_LOCK = "scroll_lock.png";
