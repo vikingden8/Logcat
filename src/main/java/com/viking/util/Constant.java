@@ -1,5 +1,7 @@
 package com.viking.util;
 
+import com.android.ddmlib.DdmConstants;
+
 /**
  * Author : Viking Den <vikingden7@gmail.com>
  * Date : 2017/3/26
@@ -15,11 +17,25 @@ public class Constant {
     public static final String PREFERENCE_LOGSASH = "logSashLocation";
     public static final String PREFERENCE_SASH = "sashLocation";
 
-    public static final String PREFS_COL_TIME = "logcat.time";
-    public static final String PREFS_COL_LEVEL = "logcat.level";
-    public static final String PREFS_COL_PID = "logcat.pid";
-    public static final String PREFS_COL_TAG = "logcat.tag";
-    public static final String PREFS_COL_MESSAGE = "logcat.message";
+    /** Preference key to use for storing list of logcat filters. */
+    public static final String LOGCAT_FILTERS_LIST = "logcat.view.filters.list";
 
-    public static final String PREFS_FILTERS = "logcat.filter";
+    /** Preference key to use for storing font settings. */
+    public static final String LOGCAT_VIEW_FONT_PREFKEY = "logcat.view.font";
+
+    /** Preference key to use for deciding whether to automatically en/disable scroll lock. */
+    public static final String AUTO_SCROLL_LOCK_PREFKEY = "logcat.view.auto-scroll-lock";
+
+    // Preference keys for message colors based on severity level
+    public static final String MSG_COLOR_PREFKEY_PREFIX = "logcat.msg.color.";
+    public static final String VERBOSE_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "verbose";
+    public static final String DEBUG_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "debug";
+    public static final String INFO_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "info";
+    public static final String WARN_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "warn";
+    public static final String ERROR_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "error";
+    public static final String ASSERT_COLOR_PREFKEY = MSG_COLOR_PREFKEY_PREFIX + "assert";
+
+    // Use a monospace font family
+    public static final String FONT_FAMILY =
+            DdmConstants.CURRENT_PLATFORM == DdmConstants.PLATFORM_DARWIN ? "Monaco":"Courier New";
 }
