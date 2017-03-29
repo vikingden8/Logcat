@@ -111,8 +111,6 @@ public final class LogCatPanel extends SelectionDependentPanel
     private SelectionListener mScrollBarSelectionListener;
     private boolean mScrollBarListenerSet = false;
 
-    private String mLogFileExportFolder;
-
     private Font mFont;
     private int mWrapWidthInChars;
 
@@ -222,46 +220,37 @@ public final class LogCatPanel extends SelectionDependentPanel
      * 设置偏好值改变的监听器
      */
     private void initializePreferenceUpdateListeners() {
-        mPrefStore.addPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent event) {
-                String changedProperty = event.getProperty();
-                if (changedProperty.equals(Constant.LOGCAT_VIEW_FONT_PREFKEY)) {
-                    if (mFont != null) {
-                        mFont.dispose();
-                    }
-                    mFont = getFontFromPrefStore();
-                    recomputeWrapWidth();
-                    Display.getDefault().syncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (TableItem it: mTable.getItems()) {
-                                it.setFont(mFont);
-                            }
-                        }
-                    });
-                } else if (changedProperty.startsWith(Constant.MSG_COLOR_PREFKEY_PREFIX)) {
-                    loadMessageColorPreferences();
-                    Display.getDefault().syncExec(new Runnable() {
-                       @Override
-                       public void run() {
-                           Color c = mVerboseColor;
-                           for (TableItem it: mTable.getItems()) {
-                               Object data = it.getData();
-                               if (data instanceof LogCatMessage) {
-                                   c = getForegroundColor((LogCatMessage) data);
-                               }
-                               it.setForeground(c);
-                           }
-                       }
-                    });
-                } else if (changedProperty.equals(LogCatMessageList.MAX_MESSAGES_PREFKEY)) {
-                    mReceiver.resizeFifo(mPrefStore.getInt(
-                            LogCatMessageList.MAX_MESSAGES_PREFKEY));
-                    reloadLogBuffer();
-                } else if (changedProperty.equals(Constant.AUTO_SCROLL_LOCK_PREFKEY)) {
-                    mAutoScrollLock = mPrefStore.getBoolean(Constant.AUTO_SCROLL_LOCK_PREFKEY);
+        mPrefStore.addPropertyChangeListener(event -> {
+            String changedProperty = event.getProperty();
+            if (changedProperty.equals(Constant.LOGCAT_VIEW_FONT_PREFKEY)) {
+                if (mFont != null) {
+                    mFont.dispose();
                 }
+                mFont = getFontFromPrefStore();
+                recomputeWrapWidth();
+                Display.getDefault().syncExec(() -> {
+                    for (TableItem it: mTable.getItems()) {
+                        it.setFont(mFont);
+                    }
+                });
+            } else if (changedProperty.startsWith(Constant.MSG_COLOR_PREFKEY_PREFIX)) {
+                loadMessageColorPreferences();
+                Display.getDefault().syncExec(() -> {
+                    Color c = mVerboseColor;
+                    for (TableItem it: mTable.getItems()) {
+                        Object data = it.getData();
+                        if (data instanceof LogCatMessage) {
+                            c = getForegroundColor((LogCatMessage) data);
+                        }
+                        it.setForeground(c);
+                    }
+                });
+            } else if (changedProperty.equals(LogCatMessageList.MAX_MESSAGES_PREFKEY)) {
+                mReceiver.resizeFifo(mPrefStore.getInt(
+                        LogCatMessageList.MAX_MESSAGES_PREFKEY));
+                reloadLogBuffer();
+            } else if (changedProperty.equals(Constant.AUTO_SCROLL_LOCK_PREFKEY)) {
+                mAutoScrollLock = mPrefStore.getBoolean(Constant.AUTO_SCROLL_LOCK_PREFKEY);
             }
         });
     }
@@ -280,7 +269,6 @@ public final class LogCatPanel extends SelectionDependentPanel
 
     /**
      * 获取保存的Filter
-     * @return
      */
     private List<LogCatFilter> getSavedFilters() {
         LogCatFilterSettingsSerializer serializer = new LogCatFilterSettingsSerializer();
@@ -315,12 +303,7 @@ public final class LogCatPanel extends SelectionDependentPanel
         // Always scroll to last line whenever the selected device changes.
         // Run this in a separate async thread to give the table some time to update after the
         // setInput above.
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                scrollToLatestLog();
-            }
-        });
+        Display.getDefault().asyncExec(this::scrollToLatestLog);
     }
 
     @Override
@@ -499,47 +482,6 @@ public final class LogCatPanel extends SelectionDependentPanel
         saveFilterPreferences();
     }
 
-    /**
-     * Select the transient filter for the specified application. If no such filter
-     * exists, then create one and then select that. This method should be called from
-     * the UI thread.
-     * @param appName application name to filter by
-     */
-    public void selectTransientAppFilter(String appName) {
-        assert mTable.getDisplay().getThread() == Thread.currentThread();
-
-        LogCatFilter f = findTransientAppFilter(appName);
-        if (f == null) {
-            f = createTransientAppFilter(appName);
-            mLogCatFilters.add(f);
-
-            LogCatFilterData fd = new LogCatFilterData(f);
-            fd.setTransient();
-            mLogCatFilterData.put(f, fd);
-        }
-
-        selectFilterAt(mLogCatFilters.indexOf(f));
-    }
-
-    private LogCatFilter findTransientAppFilter(String appName) {
-        for (LogCatFilter f : mLogCatFilters) {
-            LogCatFilterData fd = mLogCatFilterData.get(f);
-            if (fd != null && fd.isTransient() && f.getAppName().equals(appName)) {
-                return f;
-            }
-        }
-        return null;
-    }
-
-    private LogCatFilter createTransientAppFilter(String appName) {
-        LogCatFilter f = new LogCatFilter(appName + " (Session Filter)",
-                "",
-                "",
-                "",
-                appName,
-                LogLevel.VERBOSE);
-        return f;
-    }
 
     private void selectFilterAt(final int index) {
         mFiltersTableViewer.refresh();
@@ -594,12 +536,9 @@ public final class LogCatPanel extends SelectionDependentPanel
         mLiveFilterText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         mLiveFilterText.setMessage(Constant.DEFAULT_SEARCH_MESSAGE);
         mLiveFilterText.setToolTipText(Constant.DEFAULT_SEARCH_TOOLTIP);
-        mLiveFilterText.addModifyListener(new ModifyListener() {
-            @Override
-            public void modifyText(ModifyEvent arg0) {
-                updateFilterTextColor();
-                updateAppliedFilters();
-            }
+        mLiveFilterText.addModifyListener(event -> {
+            updateFilterTextColor();
+            updateAppliedFilters();
         });
 
         mLiveFilterLevelCombo = new Combo(c, SWT.READ_ONLY | SWT.DROP_DOWN);
@@ -688,7 +627,7 @@ public final class LogCatPanel extends SelectionDependentPanel
         int[] indices = mTable.getSelectionIndices();
         Arrays.sort(indices); /* Table.getSelectionIndices() does not specify an order */
 
-        List<LogCatMessage> selectedMessages = new ArrayList<LogCatMessage>(indices.length);
+        List<LogCatMessage> selectedMessages = new ArrayList<>(indices.length);
         for (int i : indices) {
             Object data = mTable.getItem(i).getData();
             if (data instanceof LogCatMessage) {
@@ -770,12 +709,8 @@ public final class LogCatPanel extends SelectionDependentPanel
         // Set the row height to be sufficient enough to display the current font.
         // This is not strictly necessary, except that on WinXP, the rows showed up clipped. So
         // we explicitly set it to be sure.
-        mTable.addListener(SWT.MeasureItem, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                event.height = event.gc.getFontMetrics().getHeight();
-            }
-        });
+        mTable.addListener(SWT.MeasureItem,
+                event -> event.height = event.gc.getFontMetrics().getHeight());
 
         // Update the label provider whenever the text column's width changes
         TableColumn textColumn = mTable.getColumn(properties.length - 1);
@@ -790,12 +725,7 @@ public final class LogCatPanel extends SelectionDependentPanel
         initDoubleClickListener();
         recomputeWrapWidth();
 
-        mTable.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent arg0) {
-                dispose();
-            }
-        });
+        mTable.addDisposeListener(event -> dispose());
 
         final ScrollBar vbar = mTable.getVerticalBar();
         mScrollBarSelectionListener = new SelectionAdapter() {
@@ -882,20 +812,17 @@ public final class LogCatPanel extends SelectionDependentPanel
         mgr.add(findAction);
         final Menu menu = mgr.createContextMenu(table);
 
-        table.addListener(SWT.MenuDetect, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                Point pt = table.getDisplay().map(null, table, new Point(event.x, event.y));
-                Rectangle clientArea = table.getClientArea();
+        table.addListener(SWT.MenuDetect, event -> {
+            Point pt = table.getDisplay().map(null, table, new Point(event.x, event.y));
+            Rectangle clientArea = table.getClientArea();
 
-                // The click location is in the header if it is between
-                // clientArea.y and clientArea.y + header height
-                boolean header = pt.y > clientArea.y
-                                    && pt.y < (clientArea.y + table.getHeaderHeight());
+            // The click location is in the header if it is between
+            // clientArea.y and clientArea.y + header height
+            boolean header = pt.y > clientArea.y
+                                && pt.y < (clientArea.y + table.getHeaderHeight());
 
-                // Show the menu only if it is not inside the header
-                table.setMenu(header ? null : menu);
-            }
+            // Show the menu only if it is not inside the header
+            table.setMenu(header ? null : menu);
         });
     }
 
@@ -993,7 +920,7 @@ public final class LogCatPanel extends SelectionDependentPanel
 
     private List<LogCatFilter> getFiltersToApply() {
         /* list of filters to apply = saved filter + live filters */
-        List<LogCatFilter> filters = new ArrayList<LogCatFilter>();
+        List<LogCatFilter> filters = new ArrayList<>();
 
         if (mCurrentSelectedFilterIndex != DEFAULT_FILTER_INDEX) {
             filters.add(getSelectedSavedFilter());
@@ -1069,14 +996,11 @@ public final class LogCatPanel extends SelectionDependentPanel
     }
 
     private void refreshFiltersTable() {
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                if (mFiltersTableViewer.getTable().isDisposed()) {
-                    return;
-                }
-                mFiltersTableViewer.refresh();
+        Display.getDefault().asyncExec(() -> {
+            if (mFiltersTableViewer.getTable().isDisposed()) {
+                return;
             }
+            mFiltersTableViewer.refresh();
         });
     }
 
@@ -1205,12 +1129,9 @@ public final class LogCatPanel extends SelectionDependentPanel
 
             // re-enable listening to scroll bar events, but do so in a separate thread to make
             // sure that the current task (LogCatRefresherTask) has completed first
-            Display.getDefault().asyncExec(new Runnable() {
-                @Override
-                public void run() {
-                    if (!mTable.isDisposed()) {
-                        startScrollBarMonitor(mTable.getVerticalBar());
-                    }
+            Display.getDefault().asyncExec(() -> {
+                if (!mTable.isDisposed()) {
+                    startScrollBarMonitor(mTable.getVerticalBar());
                 }
             });
         }
@@ -1314,7 +1235,7 @@ public final class LogCatPanel extends SelectionDependentPanel
     private List<ILogCatMessageSelectionListener> mMessageSelectionListeners;
 
     private void initDoubleClickListener() {
-        mMessageSelectionListeners = new ArrayList<ILogCatMessageSelectionListener>(1);
+        mMessageSelectionListeners = new ArrayList<>(1);
 
         mTable.addSelectionListener(new SelectionAdapter() {
             @Override
