@@ -349,8 +349,18 @@ public final class LogCatPanel extends SelectionDependentPanel
         c.setLayout(layout);
         c.setLayoutData(new GridData(GridData.FILL_BOTH));
 
+//        createDevicesToolBar(c);
+
         createFiltersToolbar(c);
         createFiltersTable(c);
+    }
+
+    private void createDevicesToolBar(Composite parent){
+        Label l = new Label(parent, SWT.NONE);
+        l.setText("Devices");
+        GridData gd = new GridData();
+        gd.horizontalAlignment = SWT.LEFT;
+        l.setLayoutData(gd);
     }
 
     private void createFiltersToolbar(Composite parent) {
